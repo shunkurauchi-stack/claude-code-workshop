@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Codeで効率よくアプリを作る</title>
+<style>
+  :root {
+    --orange: #D97757;
+    --orange-light: #F4A67A;
+    --orange-dark: #B85E3F;
+    --cream: #F5F0E8;
+    --dark: #1A1A2E;
+    --navy: #16213E;
+    --purple: #5C4B8A;
+    --teal: #2A9D8F;
+    --yellow: #E9C46A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--dark);
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .slides-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    padding: 52px 80px;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .slide.active { display: flex; }
+
+  /* ===== SLIDE 1: Title ===== */
+  .slide-title {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 40%, #0F3460 100%);
+    align-items: center;
+    text-align: center;
+  }
+
+  .slide-title .badge {
+    background: var(--orange);
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    display: inline-block;
+  }
+
+  .slide-title h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .slide-title h1 .highlight {
+    background: linear-gradient(90deg, var(--orange-light), var(--orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-title .subtitle {
+    font-size: 22px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 50px;
+  }
+
+  .slide-title .meta {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+  .deco-circle-1 { width: 400px; height: 400px; background: var(--orange); top: -100px; right: -100px; }
+  .deco-circle-2 { width: 250px; height: 250px; background: var(--purple); bottom: -50px; left: -50px; }
+
+  /* ===== Content slides ===== */
+  .slide-content, .slide-agenda, .slide-summary {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+    justify-content: flex-start;
+  }
+  .slide-summary { background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%); }
+
+  /* ===== Common components ===== */
+  .slide-header { margin-bottom: 32px; }
+
+  .slide-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--orange-light);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .slide-header h2 {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .slide-header h2 .accent { color: var(--orange-light); }
+
+  .divider {
+    width: 60px;
+    height: 4px;
+    background: var(--orange);
+    border-radius: 2px;
+    margin-top: 14px;
+  }
+
+  /* Cards */
+  .cards { display: grid; gap: 18px; }
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--orange);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .card.teal::before { background: var(--teal); }
+  .card.purple::before { background: var(--purple); }
+  .card.yellow::before { background: var(--yellow); }
+  .card.green::before { background: #4CAF50; }
+
+  .card-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+  .card p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+
+  /* Agenda */
+  .agenda-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .agenda-item {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px 28px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .agenda-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+  .agenda-dot.teal { background: var(--teal); }
+  .agenda-dot.purple { background: var(--purple); }
+  .agenda-dot.yellow { background: var(--yellow); }
+  .agenda-dot.green { background: #4CAF50; }
+
+  .agenda-title { font-size: 17px; font-weight: 600; }
+  .agenda-desc { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 18px 22px;
+  }
+
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-weight: 800;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-num.teal { background: var(--teal); }
+  .step-num.purple { background: var(--purple); }
+  .step-num.yellow { background: #c8a84b; }
+  .step-num.green { background: #4CAF50; }
+
+  .step-body h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .step-body p { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+
+  /* Code block */
+  .code-block {
+    background: #0D1117;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    position: relative;
+  }
+
+  .code-block .label {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .code-block .prompt { color: var(--teal); }
+  .code-block .cmd { color: #fff; }
+  .code-block .comment { color: rgba(255,255,255,0.4); }
+  .code-block .output { color: var(--orange-light); }
+  .code-block .key { color: #79b8ff; }
+  .code-block .val { color: #f97583; }
+  .code-block .str { color: #9ecbff; }
+  .code-block .head { color: var(--yellow); font-weight: 700; }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+  }
+
+  .col { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Feature list */
+  .feature-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border-left: 3px solid var(--orange);
+  }
+  .feature-item.teal { border-left-color: var(--teal); }
+  .feature-item.purple { border-left-color: #A89FCC; }
+  .feature-item.yellow { border-left-color: var(--yellow); }
+  .feature-item.green { border-left-color: #4CAF50; }
+
+  .feature-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  .feature-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .feature-item p { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+  /* Prompt example */
+  .prompt-example {
+    background: rgba(42,157,143,0.12);
+    border: 1px solid rgba(42,157,143,0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .prompt-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .response-example {
+    background: rgba(217,119,87,0.1);
+    border: 1px solid rgba(217,119,87,0.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .response-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--orange-light);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 12px 0;
+    flex-wrap: nowrap;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step .flow-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--orange-light);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .flow-step .flow-icon { font-size: 28px; margin-bottom: 6px; display: block; }
+  .flow-step .flow-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .flow-step .flow-desc { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.4; }
+
+  .flow-arrow {
+    font-size: 22px;
+    color: var(--orange);
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+  .tag {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .tag-orange { background: rgba(217,119,87,0.2); color: var(--orange-light); border: 1px solid rgba(217,119,87,0.4); }
+  .tag-teal { background: rgba(42,157,143,0.2); color: #4ECDC4; border: 1px solid rgba(42,157,143,0.4); }
+  .tag-purple { background: rgba(92,75,138,0.2); color: #A89FCC; border: 1px solid rgba(92,75,138,0.4); }
+  .tag-yellow { background: rgba(233,196,106,0.2); color: var(--yellow); border: 1px solid rgba(233,196,106,0.4); }
+
+  /* Summary */
+  .summary-points { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+
+  .summary-point {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .check-icon {
+    width: 30px; height: 30px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .next-steps {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 22px 26px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .next-steps h3 { font-size: 16px; font-weight: 700; color: var(--orange-light); margin-bottom: 12px; }
+
+  .next-steps ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+
+  .next-steps li::before { content: '→ '; color: var(--orange-light); }
+  .next-steps li { font-size: 14px; color: rgba(255,255,255,0.8); }
+
+  /* Demo */
+  .demo-frame {
+    background: rgba(255,255,255,0.04);
+    border: 2px dashed rgba(217,119,87,0.4);
+    border-radius: 20px;
+    padding: 36px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .demo-icon { font-size: 60px; }
+  .demo-title { font-size: 26px; font-weight: 800; color: var(--orange-light); }
+
+  .demo-tips {
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-tip {
+    background: rgba(217,119,87,0.15);
+    border: 1px solid rgba(217,119,87,0.3);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 13px;
+    color: var(--orange-light);
+  }
+
+  /* Callout box */
+  .callout {
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.7;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .callout.info { background: rgba(42,157,143,0.12); border: 1px solid rgba(42,157,143,0.3); }
+  .callout.warn { background: rgba(233,196,106,0.1); border: 1px solid rgba(233,196,106,0.3); }
+  .callout.tip  { background: rgba(217,119,87,0.1); border: 1px solid rgba(217,119,87,0.3); }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; }
+  .callout-body { color: rgba(255,255,255,0.82); }
+  .callout-body strong { color: #fff; }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    padding: 10px 22px;
+  }
+
+  .nav-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .nav-btn:hover { background: var(--orange); border-color: var(--orange); }
+
+  .nav-counter {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    min-width: 48px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .nav-dots { display: flex; gap: 6px; }
+
+  .nav-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .nav-dot.active { background: var(--orange); transform: scale(1.3); }
+
+  .slide-num {
+    position: fixed;
+    top: 26px; right: 32px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+
+<div class="slides-container">
+
+  <!-- Slide 1: Title -->
+  <div class="slide slide-title active" id="slide-1">
+    <div class="deco-circle deco-circle-1"></div>
+    <div class="deco-circle deco-circle-2"></div>
+    <span class="badge">実践ガイド</span>
+    <h1>
+      <span class="highlight">Claude Code</span> で<br>効率よくアプリを作る
+    </h1>
+    <p class="subtitle">CLAUDE.md から実装・テストまで ─ 開発フロー完全ガイド</p>
+    <p class="meta">2026年6月 ／ 社内勉強会</p>
+  </div>
+
+  <!-- Slide 2: Agenda -->
+  <div class="slide slide-agenda" id="slide-2">
+    <div class="slide-header">
+      <p class="slide-label">Agenda</p>
+      <h2>本日の流れ</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="agenda-list">
+      <div class="agenda-item">
+        <div class="agenda-dot"></div>
+        <div>
+          <div class="agenda-title">Claude Code を使った開発フローの全体像</div>
+          <div class="agenda-desc">「普通の開発」と何が変わるか</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-dot teal"></div>
+        <div>
+          <div class="agenda-title">STEP 1 ─ まず CLAUDE.md を書く</div>
+          <div class="agenda-desc">プロジェクトの「説明書」をAIに渡す</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-dot purple"></div>
+        <div>
+          <div class="agenda-title">STEP 2 ─ 設計・要件整理フェーズ</div>
+          <div class="agenda-desc">AIと一緒に仕様を固める</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-dot yellow"></div>
+        <div>
+          <div class="agenda-title">STEP 3 ─ 実装フェーズ（効果的な指示の出し方）</div>
+          <div class="agenda-desc">精度を上げる指示のコツ</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-dot green"></div>
+        <div>
+          <div class="agenda-title">STEP 4 ─ テスト・デバッグ ／ Tips ／ まとめ</div>
+          <div class="agenda-desc">よくある失敗パターンと回避策</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Overall Flow -->
+  <div class="slide slide-content" id="slide-3">
+    <div class="slide-header">
+      <p class="slide-label">Overview</p>
+      <h2>Claude Code を使った<span class="accent">開発フロー</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">STEP 1</div>
+        <span class="flow-icon">📋</span>
+        <div class="flow-name">CLAUDE.md</div>
+        <div class="flow-desc">プロジェクトの背景・<br>規約をAIに渡す</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">STEP 2</div>
+        <span class="flow-icon">🗺️</span>
+        <div class="flow-name">設計・要件整理</div>
+        <div class="flow-desc">AIと議論して<br>仕様を固める</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">STEP 3</div>
+        <span class="flow-icon">⚙️</span>
+        <div class="flow-name">実装</div>
+        <div class="flow-desc">小さく分割して<br>一つずつ指示する</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">STEP 4</div>
+        <span class="flow-icon">🧪</span>
+        <div class="flow-name">テスト・デバッグ</div>
+        <div class="flow-desc">テスト生成・<br>エラー解析を任せる</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">REVIEW</div>
+        <span class="flow-icon">🔄</span>
+        <div class="flow-name">レビュー</div>
+        <div class="flow-desc">人間が確認→<br>STEP 3 へ戻る</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body">
+          <strong>ポイント：</strong>Claude Code は「一発で全部やってくれる魔法」ではなく、各ステップを人間と一緒に進める<strong>ペアプログラマー</strong>として使うのが正解
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body">
+          <strong>前提：</strong>Git で管理していること。変更前にコミットしておけば、何かあってもすぐ戻せる
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: CLAUDE.md - What is it? -->
+  <div class="slide slide-content" id="slide-4">
+    <div class="slide-header">
+      <p class="slide-label">STEP 1</p>
+      <h2>まず <span class="accent">CLAUDE.md</span> を書く</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="two-col">
+      <div class="col">
+        <p style="color:rgba(255,255,255,0.65); font-size:14px; line-height:1.7;">
+          CLAUDE.md はプロジェクトのルートに置く<strong style="color:#fff">マークダウンファイル</strong>。<br>
+          Claude Code を起動するたびに自動で読み込まれ、<br>毎回説明しなくてもAIが文脈を理解した状態になる。
+        </p>
+
+        <div class="cards" style="grid-template-columns:1fr; gap:12px; margin-top:4px;">
+          <div class="card">
+            <span class="card-icon" style="font-size:24px;">🗂️</span>
+            <h3 style="font-size:16px;">何を書くか</h3>
+            <p>プロジェクト概要・技術スタック・コード規約・ディレクトリ構成・よく使うコマンド・やってはいけないこと</p>
+          </div>
+          <div class="card teal">
+            <span class="card-icon" style="font-size:24px;">👥</span>
+            <h3 style="font-size:16px;">チームで共有する</h3>
+            <p>Git にコミットしてチーム全員で使う。全員のClaude Codeが同じ前提で動くようになる</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:8px;">CLAUDE.md の例</div>
+        <div class="code-block" style="font-size:12px; line-height:1.8; flex:1;">
+          <span class="label">CLAUDE.md</span>
+          <span class="head"># My App — Claude Code 設定</span><br><br>
+          <span class="head">## プロジェクト概要</span><br>
+          <span class="comment">FastAPI + React で作る在庫管理システム</span><br><br>
+          <span class="head">## 技術スタック</span><br>
+          <span class="comment">- Backend: Python 3.12 / FastAPI / SQLAlchemy</span><br>
+          <span class="comment">- Frontend: React 18 / TypeScript / Tailwind CSS</span><br>
+          <span class="comment">- DB: PostgreSQL 16</span><br><br>
+          <span class="head">## コード規約</span><br>
+          <span class="comment">- Python: 型ヒント必須、docstring は Google スタイル</span><br>
+          <span class="comment">- API エラーは AppException を継承したクラスで raise</span><br>
+          <span class="comment">- テストは pytest。fixture は conftest.py に集約</span><br><br>
+          <span class="head">## よく使うコマンド</span><br>
+          <span class="prompt">```bash</span><br>
+          <span class="cmd">make dev      </span><span class="comment"># 開発サーバー起動</span><br>
+          <span class="cmd">make test     </span><span class="comment"># テスト実行</span><br>
+          <span class="prompt">```</span><br><br>
+          <span class="head">## やってはいけないこと</span><br>
+          <span class="comment">- 生 SQL は原則禁止（ORM を使う）</span><br>
+          <span class="comment">- .env ファイルを Git にコミットしない</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: CLAUDE.md - Tips -->
+  <div class="slide slide-content" id="slide-5">
+    <div class="slide-header">
+      <p class="slide-label">STEP 1</p>
+      <h2>CLAUDE.md を<span class="accent">育てる</span>コツ</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="cards cards-2" style="margin-bottom:20px;">
+      <div class="card">
+        <span class="card-icon">✅</span>
+        <h3>書くべき内容</h3>
+        <p style="line-height:2.0;">
+          プロジェクトの目的・背景<br>
+          使っているライブラリ・バージョン<br>
+          命名規則・フォルダ構成のルール<br>
+          AIに<strong style="color:#fff;">「知ってほしい罠」</strong>（既知のバグ・回避策）<br>
+          よく使う CLI コマンド
+        </p>
+      </div>
+      <div class="card yellow">
+        <span class="card-icon">🚫</span>
+        <h3>書かなくていい内容</h3>
+        <p style="line-height:2.0;">
+          コードやコメントで読めばわかること<br>
+          パスワード・APIキーなどの機密情報<br>
+          長すぎる説明（簡潔さが重要）<br>
+          Git 履歴で追えること<br>
+          一時的なメモ（作業ログなど）
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="callout tip">
+        <span class="callout-icon">✨</span>
+        <div class="callout-body">
+          <strong>/init コマンドで自動生成させよう：</strong>
+          コードが存在する状態で <code>/init</code> と打つとコードベースを読み込み、CLAUDE.md の雛形を自動生成してくれる。<br>
+          <strong>完全に新規の場合は</strong> <code>npm create</code> / <code>django-admin startproject</code> などでスキャフォールドしてから実行する。そこから手直しするのが一番早い
+        </div>
+      </div>
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body">
+          Claude Code はセッションをまたいで<strong>記憶がリセットされる</strong>。「この説明また必要だな」と感じたことは CLAUDE.md に書いておくと次回から不要になる。書けば書くほど的外れな提案が減っていく
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: STEP 2 - Design phase -->
+  <div class="slide slide-content" id="slide-6">
+    <div class="slide-header">
+      <p class="slide-label">STEP 2</p>
+      <h2>設計・要件整理を<span class="accent">AIと一緒にやる</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <p style="color:rgba(255,255,255,0.65); font-size:13px; line-height:1.7;">
+          実装を始める前に、Claude Code と<br>
+          <strong style="color:#fff">「何を作るか」を言語化する</strong>のが重要。<br>
+          この段階で曖昧さをなくすほど実装がスムーズになる。
+        </p>
+
+        <div class="prompt-example">
+          <div class="prompt-label">設計フェーズの指示例</div>
+          ユーザーが商品を検索してカートに追加できる機能を実装したい。<br>
+          まず実装方針・必要なAPIエンドポイント・DBスキーマの変更点を整理して提案してほしい。コードはまだ書かなくていい。
+        </div>
+
+        <div class="response-example">
+          <div class="response-label">Claude Code の回答（例）</div>
+          提案する実装方針：<br>
+          ① GET /api/products?q= で検索API<br>
+          ② POST /api/cart/items でカート追加<br>
+          ③ cart_items テーブルを新設（user_id, product_id, quantity）<br>
+          ④ 既存の Product モデルに stock_count を追加…
+        </div>
+      </div>
+
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">設計フェーズでやること</div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">🗺️</span>
+            <div>
+              <h4>実装方針のレビュー</h4>
+              <p>「こう実装しようと思うが問題ないか確認して」と相談。見落としを早期発見</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">🔍</span>
+            <div>
+              <h4>既存コードへの影響調査</h4>
+              <p>「この変更が影響するファイルをすべて洗い出して」で影響範囲を把握</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">📊</span>
+            <div>
+              <h4>DBスキーマ設計のレビュー</h4>
+              <p>ER図やスキーマ案を提示して「正規化の問題・インデックスの漏れ」を確認</p>
+            </div>
+          </div>
+          <div class="feature-item yellow">
+            <span class="feature-icon">⚠️</span>
+            <div>
+              <h4>リスクの洗い出し</h4>
+              <p>「この実装のリスクや落とし穴を教えて」と聞いておくと後で後悔しない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: STEP 3 - Implementation -->
+  <div class="slide slide-content" id="slide-7">
+    <div class="slide-header">
+      <p class="slide-label">STEP 3</p>
+      <h2>実装フェーズ ─ <span class="accent">効果的な指示の出し方</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:8px;">悪い指示 vs 良い指示</div>
+
+        <div style="background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.25); border-radius:12px; padding:14px 18px; margin-bottom:10px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:2px; color:#ff8080; margin-bottom:6px; text-transform:uppercase;">❌ 悪い指示</div>
+          <div style="font-size:14px; color:rgba(255,255,255,0.75); line-height:1.7;">
+            カート機能を実装して
+          </div>
+        </div>
+
+        <div class="prompt-example">
+          <div class="prompt-label">✅ 良い指示</div>
+          <span style="font-size:14px; line-height:1.8;">
+            <code>backend/routers/cart.py</code> に以下のエンドポイントを追加して：<br>
+            • POST /cart/items — リクエスト: {product_id, quantity}<br>
+            • 在庫が不足の場合は 400 エラーを返す<br>
+            • 既存の <code>ProductService</code> のスタイルに合わせて実装<br>
+            • 実装後にユニットテストも追加して
+          </span>
+        </div>
+
+        <div class="callout info" style="margin-top:10px;">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body" style="font-size:13px;">
+            <strong>指示に含めると精度が上がる3点：</strong><br>
+            ① どのファイルに　② 何を　③ どんな制約で
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:8px;">実装を小さく分割する</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>1機能 = 1会話</h3>
+              <p>「カート追加」「在庫チェック」「決済連携」をまとめて頼まない。一つずつ動作確認してから次へ</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num teal">2</div>
+            <div class="step-body">
+              <h3>既存スタイルを参照させる</h3>
+              <p>「<code>src/services/user.py</code> と同じスタイルで」と指定するだけで命名・構造が揃う</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num purple">3</div>
+            <div class="step-body">
+              <h3>途中で確認する</h3>
+              <p>「まずファイル構成の案だけ提示して、OKなら実装して」と2段階にすると安全</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num yellow">4</div>
+            <div class="step-body">
+              <h3>コンテキスト管理</h3>
+              <p>長くなったら <code>/compact</code> で圧縮して作業継続。それでも混乱するなら <code>/clear</code> で全リセット</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: STEP 4 - Test & Debug -->
+  <div class="slide slide-content" id="slide-8">
+    <div class="slide-header">
+      <p class="slide-label">STEP 4</p>
+      <h2>テスト・<span class="accent">デバッグを効率化</span>する</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="cards cards-2" style="margin-bottom:18px;">
+      <div class="card">
+        <span class="card-icon">🧪</span>
+        <h3>テスト自動生成</h3>
+        <p>
+          実装した関数を選択して<br>
+          <strong style="color:#fff">「この関数のユニットテストを書いて。エッジケースも含めて」</strong><br>
+          と指示するだけで pytest / Jest のテストが出てくる
+        </p>
+      </div>
+      <div class="card teal">
+        <span class="card-icon">🐛</span>
+        <h3>エラー解析</h3>
+        <p>
+          スタックトレースをそのまま貼り付けて<br>
+          <strong style="color:#fff">「このエラーの原因と修正方法を教えて」</strong><br>
+          コードベース全体を検索して原因を特定してくれる
+        </p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="prompt-example">
+          <div class="prompt-label">テスト生成の指示例</div>
+          <span style="font-size:13px; line-height:1.8;">
+            <code>backend/services/cart.py</code> の <code>add_item()</code> のテストを書いて。<br>
+            以下のケースを必ずカバーして：<br>
+            • 正常系（在庫あり）<br>
+            • 在庫不足で例外が発生するケース<br>
+            • product_id が存在しないケース<br>
+            既存の <code>tests/services/test_product.py</code> と同じ形式で
+          </span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">⚡</span>
+            <div>
+              <h4>テスト実行も任せる</h4>
+              <p>「テストを実行して失敗したら直して」と言えば、実行→失敗確認→修正まで自律的にこなす</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">🔬</span>
+            <div>
+              <h4>コードレビューを依頼する</h4>
+              <p>「このPRのコードで問題になりそうな点を教えて」でセルフレビューの精度が上がる</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">📄</span>
+            <div>
+              <h4>ドキュメント生成</h4>
+              <p>「このモジュールのAPIドキュメントをMarkdownで書いて」で仕様書を自動生成</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Tips & Common Mistakes -->
+  <div class="slide slide-content" id="slide-9">
+    <div class="slide-header">
+      <p class="slide-label">Tips</p>
+      <h2>よくある<span class="accent">失敗パターン</span>と避け方</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">❌</span>
+        <h3>「一発で全部やって」</h3>
+        <p>大きすぎる指示は品質が落ちる。<br>
+        <strong style="color:#fff;">→ 1機能ずつ、確認しながら進める</strong><br><br>
+        特にファイルをまたぐ変更ほど分割が重要</p>
+      </div>
+      <div class="card yellow">
+        <span class="card-icon">❌</span>
+        <h3>提案をそのままAccept</h3>
+        <p>AIの変更は必ずレビューする。セキュリティ脆弱性・古いAPIの使用・テスト漏れが混入することがある。<br>
+        <strong style="color:#fff;">→ diff を必ず確認する</strong></p>
+      </div>
+      <div class="card teal">
+        <span class="card-icon">❌</span>
+        <h3>文脈なしで質問する</h3>
+        <p>「バグを直して」だけでは的外れな回答になる。<br>
+        <strong style="color:#fff;">→ ファイル名・行番号・エラー内容を添える</strong><br><br>
+        CLAUDE.md があれば省略できる部分も増える</p>
+      </div>
+      <div class="card purple">
+        <span class="card-icon">❌</span>
+        <h3>機密情報をプロンプトに貼る</h3>
+        <p>APIキー・パスワード・個人情報は絶対に貼らない。<br>
+        <strong style="color:#fff;">→ ダミー値や変数名で代替する</strong><br><br>
+        .gitignore の確認も事前に忘れずに</p>
+      </div>
+    </div>
+
+    <div class="callout info" style="margin-top:16px;">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>黄金ルール：</strong>Claude Code は超優秀なジュニアエンジニア。丁寧に文脈を伝えるほど良い仕事をするが、最終責任は人間が持つ
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Demo -->
+  <div class="slide slide-content" id="slide-10" style="flex-direction:column;">
+    <div class="slide-header">
+      <p class="slide-label">Demo</p>
+      <h2>ライブ<span class="accent">デモ</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="demo-frame" style="flex:1; margin-top:16px;">
+      <div class="demo-icon">🎬</div>
+      <div class="demo-title">実際に作ってみよう</div>
+      <p style="color:rgba(255,255,255,0.6); font-size:15px; max-width:580px; line-height:1.8;">
+        シンプルな ToDoアプリ（FastAPI + SQLite）を<br>
+        Claude Code と一緒にゼロから作るデモを実演します
+      </p>
+      <div class="demo-tips">
+        <span class="demo-tip">① CLAUDE.md を /init で自動生成</span>
+        <span class="demo-tip">② 設計方針をAIと議論</span>
+        <span class="demo-tip">③ APIエンドポイントを実装</span>
+        <span class="demo-tip">④ テストを自動生成・実行</span>
+        <span class="demo-tip">⑤ バグをエラーログから修正</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Summary -->
+  <div class="slide slide-summary" id="slide-11">
+    <div class="deco-circle deco-circle-1"></div>
+    <div class="slide-header">
+      <p class="slide-label">Summary</p>
+      <h2>まとめ</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="summary-points">
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>まず <code>CLAUDE.md</code> を書く ─ プロジェクトの文脈を渡すだけで精度が劇的に変わる</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>設計フェーズでAIと議論して仕様を固めてから実装に入る</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>実装は「1機能ずつ・小さく・確認しながら」が鉄則</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>テスト生成・エラー解析・ドキュメント作成もClaude Codeに任せる</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>AIの提案は必ずレビューする ─ 最終責任は人間が持つ</span>
+      </div>
+    </div>
+    <div class="next-steps">
+      <h3>今日からできること</h3>
+      <ul>
+        <li>担当プロジェクトで <code>/init</code> を実行して CLAUDE.md を生成してみる</li>
+        <li>小さなバグ修正や関数追加を Claude Code に頼んでみる</li>
+        <li>既存コードのテストを自動生成してカバレッジを上げる</li>
+        <li>うまくいった指示・失敗した指示を CLAUDE.md にメモして育てる</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- Slide Number -->
+<div class="slide-num" id="slide-num">1 / 11</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" onclick="changeSlide(-1)" aria-label="前のスライド">&#8592;</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <span class="nav-counter" id="nav-counter">1 / 11</span>
+  <button class="nav-btn" onclick="changeSlide(1)" aria-label="次のスライド">&#8594;</button>
+</nav>
+
+<script>
+  const totalSlides = 11;
+  let current = 1;
+
+  const dotsContainer = document.getElementById('nav-dots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 1 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    document.querySelectorAll('.nav-dot')[current - 1].classList.remove('active');
+    current = Math.max(1, Math.min(totalSlides, n));
+    document.getElementById('slide-' + current).classList.add('active');
+    document.querySelectorAll('.nav-dot')[current - 1].classList.add('active');
+    document.getElementById('nav-counter').textContent = current + ' / ' + totalSlides;
+    document.getElementById('slide-num').textContent = current + ' / ' + totalSlides;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+</script>
+</body>
+</html>

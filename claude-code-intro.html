@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 入門 | 6月勉強会</title>
+<style>
+  :root {
+    --orange: #D97757;
+    --orange-light: #F4A67A;
+    --orange-dark: #B85E3F;
+    --cream: #F5F0E8;
+    --dark: #1A1A2E;
+    --navy: #16213E;
+    --purple: #5C4B8A;
+    --teal: #2A9D8F;
+    --yellow: #E9C46A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--dark);
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .slides-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    padding: 60px 80px;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .slide.active {
+    display: flex;
+  }
+
+  /* ===== SLIDE 1: Title ===== */
+  .slide-title {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 40%, #0F3460 100%);
+    align-items: center;
+    text-align: center;
+  }
+
+  .slide-title .badge {
+    background: var(--orange);
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    display: inline-block;
+  }
+
+  .slide-title h1 {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .slide-title h1 .highlight {
+    background: linear-gradient(90deg, var(--orange-light), var(--orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-title .subtitle {
+    font-size: 24px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 50px;
+  }
+
+  .slide-title .meta {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+
+  .deco-circle-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--orange);
+    top: -100px;
+    right: -100px;
+  }
+
+  .deco-circle-2 {
+    width: 250px;
+    height: 250px;
+    background: var(--purple);
+    bottom: -50px;
+    left: -50px;
+  }
+
+  /* ===== SLIDE 2: Agenda ===== */
+  .slide-agenda {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+  }
+
+  /* ===== SLIDE 3-10: Content slides ===== */
+  .slide-content {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+  }
+
+  /* ===== Common components ===== */
+  .slide-header {
+    margin-bottom: 40px;
+  }
+
+  .slide-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--orange-light);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .slide-header h2 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .slide-header h2 .accent {
+    color: var(--orange-light);
+  }
+
+  .divider {
+    width: 60px;
+    height: 4px;
+    background: var(--orange);
+    border-radius: 2px;
+    margin-top: 16px;
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    gap: 20px;
+  }
+
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--orange);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .card.teal::before { background: var(--teal); }
+  .card.purple::before { background: var(--purple); }
+  .card.yellow::before { background: var(--yellow); }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .card p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+  }
+
+  /* Agenda items */
+  .agenda-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .agenda-item {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 16px 28px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .agenda-time {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--orange-light);
+    min-width: 70px;
+    letter-spacing: 1px;
+  }
+
+  .agenda-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  .agenda-dot.teal { background: var(--teal); }
+  .agenda-dot.purple { background: var(--purple); }
+  .agenda-dot.yellow { background: var(--yellow); }
+  .agenda-dot.green { background: #4CAF50; }
+
+  .agenda-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .agenda-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 10px;
+  }
+
+  .compare-table th {
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .compare-table th:first-child {
+    color: rgba(255,255,255,0.5);
+    width: 30%;
+  }
+
+  .compare-table th:nth-child(2) {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    border-radius: 12px 0 0 0;
+  }
+
+  .compare-table th:nth-child(3) {
+    background: var(--orange);
+    color: #fff;
+    border-radius: 0 12px 0 0;
+  }
+
+  .compare-table td {
+    padding: 14px 24px;
+    font-size: 15px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .compare-table td:nth-child(2) {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.6);
+  }
+
+  .compare-table td:nth-child(3) {
+    background: rgba(217,119,87,0.12);
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+  }
+
+  .compare-table tr:last-child td:nth-child(2) { border-radius: 0 0 0 12px; }
+  .compare-table tr:last-child td:nth-child(3) { border-radius: 0 0 12px 0; }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+
+  .step-num {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-weight: 800;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-num.teal { background: var(--teal); }
+  .step-num.purple { background: var(--purple); }
+
+  .step-body h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .step-body p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0D1117;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 16px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: 'Terminal';
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-family: sans-serif;
+    letter-spacing: 1px;
+  }
+
+  .code-block .prompt { color: var(--teal); }
+  .code-block .cmd { color: #fff; }
+  .code-block .comment { color: rgba(255,255,255,0.4); }
+  .code-block .output { color: var(--orange-light); }
+
+  /* Demo slide */
+  .demo-frame {
+    background: rgba(255,255,255,0.04);
+    border: 2px dashed rgba(217,119,87,0.4);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .demo-icon {
+    font-size: 64px;
+  }
+
+  .demo-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--orange-light);
+  }
+
+  .demo-tips {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-tip {
+    background: rgba(217,119,87,0.15);
+    border: 1px solid rgba(217,119,87,0.3);
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 14px;
+    color: var(--orange-light);
+  }
+
+  /* Summary slide */
+  .slide-summary {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
+  }
+
+  .summary-points {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .summary-point {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .check-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .next-steps {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 24px 28px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .next-steps h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--orange-light);
+    margin-bottom: 14px;
+  }
+
+  .next-steps ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .next-steps li::before {
+    content: '→ ';
+    color: var(--orange-light);
+  }
+
+  .next-steps li {
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    padding: 12px 24px;
+  }
+
+  .nav-btn {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .nav-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+  }
+
+  .nav-counter {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    min-width: 50px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .nav-dot.active {
+    background: var(--orange);
+    transform: scale(1.3);
+  }
+
+  /* Slide number badge */
+  .slide-num {
+    position: fixed;
+    top: 28px;
+    right: 36px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 600;
+  }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    flex: 1;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Tag chips */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .tag {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .tag-orange { background: rgba(217,119,87,0.2); color: var(--orange-light); border: 1px solid rgba(217,119,87,0.4); }
+  .tag-teal { background: rgba(42,157,143,0.2); color: #4ECDC4; border: 1px solid rgba(42,157,143,0.4); }
+  .tag-purple { background: rgba(92,75,138,0.2); color: #A89FCC; border: 1px solid rgba(92,75,138,0.4); }
+  .tag-yellow { background: rgba(233,196,106,0.2); color: var(--yellow); border: 1px solid rgba(233,196,106,0.4); }
+
+  /* Big stat */
+  .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+  }
+
+  .stat {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px 24px;
+    text-align: center;
+    flex: 1;
+  }
+
+  .stat-num {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--orange-light);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  /* List */
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border-left: 3px solid var(--orange);
+  }
+
+  .feature-item.teal { border-left-color: var(--teal); }
+  .feature-item.purple { border-left-color: #A89FCC; }
+  .feature-item.yellow { border-left-color: var(--yellow); }
+
+  .feature-icon { font-size: 20px; flex-shrink: 0; }
+
+  .feature-item h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .feature-item p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* Prompt example */
+  .prompt-example {
+    background: rgba(42,157,143,0.12);
+    border: 1px solid rgba(42,157,143,0.3);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.85);
+    position: relative;
+  }
+
+  .prompt-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .response-example {
+    background: rgba(217,119,87,0.1);
+    border: 1px solid rgba(217,119,87,0.25);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .response-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--orange-light);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="slides-container">
+
+  <!-- Slide 1: Title -->
+  <div class="slide slide-title active" id="slide-1">
+    <div class="deco-circle deco-circle-1"></div>
+    <div class="deco-circle deco-circle-2"></div>
+    <span class="badge">6月 社内勉強会</span>
+    <h1>
+      <span class="highlight">Claude Code</span><br>入門
+    </h1>
+    <p class="subtitle">業務効率化への第一歩 ─ 導入から実践まで</p>
+    <p class="meta">2026年6月 ／ オンライン開催</p>
+  </div>
+
+  <!-- Slide 2: Agenda -->
+  <div class="slide slide-agenda" id="slide-2">
+    <div class="slide-header">
+      <p class="slide-label">Agenda</p>
+      <h2>本日の流れ</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="agenda-list">
+      <div class="agenda-item">
+        <span class="agenda-time">0:00</span>
+        <div class="agenda-dot"></div>
+        <div>
+          <div class="agenda-title">Claude Code とは何か？</div>
+          <div class="agenda-desc">概要・特徴・普通のAIとの違い</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="agenda-time">0:15</span>
+        <div class="agenda-dot teal"></div>
+        <div>
+          <div class="agenda-title">インストールと初期設定</div>
+          <div class="agenda-desc">環境構築の手順確認</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="agenda-time">0:25</span>
+        <div class="agenda-dot purple"></div>
+        <div>
+          <div class="agenda-title">基本的な使い方</div>
+          <div class="agenda-desc">指示の出し方・CLAUDE.md・便利な機能</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="agenda-time">0:40</span>
+        <div class="agenda-dot yellow"></div>
+        <div>
+          <div class="agenda-title">業務での活用事例 ／ ライブデモ</div>
+          <div class="agenda-desc">実際の業務シーンを想定した実演</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="agenda-time">0:55</span>
+        <div class="agenda-dot green"></div>
+        <div>
+          <div class="agenda-title">まとめ ／ Q&amp;A</div>
+          <div class="agenda-desc">質疑応答・次のステップ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: What is Claude Code? -->
+  <div class="slide slide-content" id="slide-3">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 1</p>
+      <h2>Claude Code <span class="accent">とは？</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="cards cards-3">
+      <div class="card">
+        <span class="card-icon">🖥️</span>
+        <h3>ターミナルで動くAI</h3>
+        <p>ブラウザ不要。コマンドラインから直接AIと対話しながらコードを書く</p>
+      </div>
+      <div class="card teal">
+        <span class="card-icon">📁</span>
+        <h3>プロジェクト全体を理解</h3>
+        <p>ファイル読み書き・検索・実行まで自律的にこなす。コードベース全体を把握した上で回答する</p>
+      </div>
+      <div class="card purple">
+        <span class="card-icon">⚡</span>
+        <h3>Anthropic 製・Claude 搭載</h3>
+        <p>ChatGPT と同じく LLM ベース。Anthropic が開発した Claude モデルを使用</p>
+      </div>
+    </div>
+    <div class="tags" style="margin-top:24px">
+      <span class="tag tag-orange">CLI ツール</span>
+      <span class="tag tag-teal">コード生成</span>
+      <span class="tag tag-purple">ファイル操作</span>
+      <span class="tag tag-yellow">エージェント型AI</span>
+    </div>
+  </div>
+
+  <!-- Slide 4: vs Normal AI Chat -->
+  <div class="slide slide-content" id="slide-4">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 1</p>
+      <h2>普通のAIチャットとの<span class="accent">違い</span></h2>
+      <div class="divider"></div>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>ChatGPT / Claude.ai</th>
+          <th>Claude Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>操作場所</td>
+          <td>ブラウザ</td>
+          <td>ターミナル（VS Code内も可）</td>
+        </tr>
+        <tr>
+          <td>ファイルアクセス</td>
+          <td>手動でコピペが必要</td>
+          <td>自動でファイルを読み書き</td>
+        </tr>
+        <tr>
+          <td>コード実行</td>
+          <td>できない</td>
+          <td>その場で実行・確認</td>
+        </tr>
+        <tr>
+          <td>プロジェクト理解</td>
+          <td>貼り付けた部分のみ</td>
+          <td>プロジェクト全体を把握</td>
+        </tr>
+        <tr>
+          <td>作業の自律性</td>
+          <td>回答するだけ</td>
+          <td>複数ステップを自律実行</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slide 5: Install -->
+  <div class="slide slide-content" id="slide-5">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 2</p>
+      <h2>インストールと<span class="accent">初期設定</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Node.js をインストール</h3>
+          <p>v18 以上が必要。<code style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:4px">node -v</code> で確認。未インストールなら nodejs.org からダウンロード</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num teal">2</div>
+        <div class="step-body">
+          <h3>Claude Code をインストール</h3>
+          <div class="code-block" style="margin-top:8px; font-size:14px; padding:14px 18px;">
+            <span class="prompt">$ </span><span class="cmd">npm install -g @anthropic-ai/claude-code</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num purple">3</div>
+        <div class="step-body">
+          <h3>プロジェクトフォルダで起動</h3>
+          <div class="code-block" style="margin-top:8px; font-size:14px; padding:14px 18px;">
+            <span class="prompt">$ </span><span class="cmd">cd my-project</span><br>
+            <span class="prompt">$ </span><span class="cmd">claude</span><br>
+            <span class="output">✓ Welcome to Claude Code! ...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Basic Usage 1 - How to give instructions -->
+  <div class="slide slide-content" id="slide-6">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 3</p>
+      <h2>基本的な使い方 ①<br><span class="accent">指示の出し方</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="two-col">
+      <div class="col">
+        <p style="color:rgba(255,255,255,0.6); font-size:14px;">自然な日本語でOK。具体的に伝えるほど精度が上がる</p>
+        <div class="prompt-example">
+          <div class="prompt-label">あなたの指示</div>
+          src/utils.ts に「日付を YYYY-MM-DD 形式に変換する関数」を追加して。既存の関数スタイルに合わせてください。
+        </div>
+        <div class="response-example">
+          <div class="response-label">Claude Code の動作</div>
+          1. src/utils.ts を読み込む<br>
+          2. 既存スタイルを確認<br>
+          3. 関数を追加・保存<br>
+          4. 完了報告
+        </div>
+      </div>
+      <div class="col">
+        <p style="color:rgba(255,255,255,0.6); font-size:14px;">よく使うコマンド</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">✏️</span>
+            <div>
+              <h4>コード生成・修正</h4>
+              <p>「〜を実装して」「〜のバグを直して」</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">🔍</span>
+            <div>
+              <h4>コード説明</h4>
+              <p>「このファイルは何をしているか説明して」</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">🧪</span>
+            <div>
+              <h4>テスト生成</h4>
+              <p>「この関数のテストを書いて」</p>
+            </div>
+          </div>
+          <div class="feature-item yellow">
+            <span class="feature-icon">♻️</span>
+            <div>
+              <h4>リファクタリング</h4>
+              <p>「もっと読みやすく整理して」</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Basic Usage 2 - Useful features -->
+  <div class="slide slide-content" id="slide-7">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 3</p>
+      <h2>基本的な使い方 ②<br><span class="accent">チームで活かす機能</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">📋</span>
+        <h3>スラッシュコマンド</h3>
+        <p><code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">/help</code> でコマンド一覧表示<br>
+        <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">/clear</code> で会話リセット<br>
+        <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">/compact</code> でコンテキスト圧縮</p>
+      </div>
+      <div class="card teal">
+        <span class="card-icon">🗂️</span>
+        <h3>CLAUDE.md ― チーム共通設定</h3>
+        <p>プロジェクトのルール・背景・コード規約をファイルに書くと毎回の説明が不要に。チームメンバー全員が同じ前提でAIを使える</p>
+      </div>
+      <div class="card purple">
+        <span class="card-icon">🔑</span>
+        <h3>権限管理（パーミッション）</h3>
+        <p>ファイル削除や外部実行など危険な操作は確認を求めてくれる。信頼できる操作はあらかじめ許可設定も可能で安心して使える</p>
+      </div>
+      <div class="card yellow">
+        <span class="card-icon">📊</span>
+        <h3>VS Code 統合</h3>
+        <p>VS Code の拡張機能として使用可能。エディタを離れずにAIと対話しながら開発できる。既存フローをほぼ変えずに導入できる</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Business Use Cases (NEW) -->
+  <div class="slide slide-content" id="slide-8">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 4</p>
+      <h2>業務での<span class="accent">活用事例</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">⚙️</span>
+        <h3>新機能の実装</h3>
+        <p>「〇〇機能を追加して」と自然言語で指示するだけで、関連ファイルを自動読み込みしてコードを生成・保存まで一気通貫で完了</p>
+      </div>
+      <div class="card teal">
+        <span class="card-icon">🐛</span>
+        <h3>バグ調査・修正</h3>
+        <p>エラーログやスタックトレースを貼り付けると、コードベース全体を検索して原因を特定。修正案を提示して自動適用まで可能</p>
+      </div>
+      <div class="card purple">
+        <span class="card-icon">📄</span>
+        <h3>ドキュメント生成</h3>
+        <p>既存コードを読み込んでREADME・API仕様書・コメントを自動生成。最新コードに合わせたドキュメント更新も素早くできる</p>
+      </div>
+      <div class="card yellow">
+        <span class="card-icon">🧪</span>
+        <h3>テスト・コードレビュー支援</h3>
+        <p>「この関数のテストを書いて」でユニットテストを自動生成。コードの問題点を指摘させるレビュー補助としても活用できる</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Demo Time -->
+  <div class="slide slide-content" id="slide-9" style="flex-direction:column;">
+    <div class="slide-header">
+      <p class="slide-label">Chapter 4</p>
+      <h2>デモ<span class="accent">タイム</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="demo-frame" style="flex:1; margin-top:20px;">
+      <div class="demo-icon">🎬</div>
+      <div class="demo-title">ライブデモ</div>
+      <p style="color:rgba(255,255,255,0.6); font-size:16px; max-width:560px; line-height:1.7;">実際の業務シーンを想定したコードで Claude Code を操作します。指示から完了までの流れをそのまま見ていきます</p>
+      <div class="demo-tips">
+        <span class="demo-tip">① 業務コードのバグを見つけて直す</span>
+        <span class="demo-tip">② 仕様変更に合わせて関数を修正する</span>
+        <span class="demo-tip">③ テストを自動生成する</span>
+        <span class="demo-tip">④ コードのドキュメントを生成する</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Tips -->
+  <div class="slide slide-content" id="slide-10">
+    <div class="slide-header">
+      <p class="slide-label">Tips</p>
+      <h2>うまく使う<span class="accent">コツ</span></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="two-col">
+      <div class="col">
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <div>
+              <h4>具体的に指示する</h4>
+              <p>「直して」より「〇〇の関数のXXエラーを直して」。背景や制約も添えるとさらに精度が上がる</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">✅</span>
+            <div>
+              <h4>小さなステップで進める</h4>
+              <p>一度に多くを頼まず、1機能ずつ確認しながら進める。問題を早期に発見できる</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">✅</span>
+            <div>
+              <h4>結果を必ず確認する</h4>
+              <p>AIの変更をそのまま信頼せず、動作確認・レビューを忘れずに。最終責任は人間にある</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="feature-list">
+          <div class="feature-item yellow">
+            <span class="feature-icon">⚠️</span>
+            <div>
+              <h4>Git で管理する</h4>
+              <p>変更前にコミット。間違えても戻せる状態で作業することで安心して使える</p>
+            </div>
+          </div>
+          <div class="feature-item yellow">
+            <span class="feature-icon">⚠️</span>
+            <div>
+              <h4>機密情報に注意</h4>
+              <p>APIキー・パスワード・個人情報はプロンプトに貼らない。.gitignore も事前に確認</p>
+            </div>
+          </div>
+          <div class="feature-item yellow">
+            <span class="feature-icon">⚠️</span>
+            <div>
+              <h4>コスト感覚を持つ</h4>
+              <p>使うほどトークンを消費。大きなファイルの一括読み込みや長い会話には注意</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Summary -->
+  <div class="slide slide-summary" id="slide-11">
+    <div class="deco-circle deco-circle-1"></div>
+    <div class="slide-header">
+      <p class="slide-label">Summary</p>
+      <h2>まとめ</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="summary-points">
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>Claude Code はファイル操作・コード実行まで自律的にこなすエージェント型AIツール</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>新機能実装・バグ修正・ドキュメント生成・テスト作成など、幅広い業務タスクに活用できる</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span><code style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:4px">npm install -g @anthropic-ai/claude-code</code> で今すぐ使える</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>具体的に指示して、小さく進めて、必ず確認する ― これだけで開発効率は大きく変わる</span>
+      </div>
+    </div>
+    <div class="next-steps">
+      <h3>次のステップ</h3>
+      <ul>
+        <li>まず担当プロジェクトの小さなタスクで試してみる</li>
+        <li>CLAUDE.md にプロジェクトのルール・背景を書いてチームで共有する</li>
+        <li>活用できたこと・うまくいかなかったことを社内でシェアし合う</li>
+        <li>7月の勉強会：実践的な活用事例をチームでディープダイブ予定</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- Slide Number -->
+<div class="slide-num" id="slide-num">1 / 11</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">&#8592;</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <span class="nav-counter" id="nav-counter">1 / 11</span>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">&#8594;</button>
+</nav>
+
+<script>
+  const totalSlides = 11;
+  let current = 1;
+
+  const dotsContainer = document.getElementById('nav-dots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 1 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    document.querySelectorAll('.nav-dot')[current - 1].classList.remove('active');
+    current = Math.max(1, Math.min(totalSlides, n));
+    document.getElementById('slide-' + current).classList.add('active');
+    document.querySelectorAll('.nav-dot')[current - 1].classList.add('active');
+    document.getElementById('nav-counter').textContent = current + ' / ' + totalSlides;
+    document.getElementById('slide-num').textContent = current + ' / ' + totalSlides;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+</script>
+</body>
+</html>
