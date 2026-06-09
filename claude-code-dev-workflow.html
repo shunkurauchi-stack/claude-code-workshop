@@ -189,6 +189,7 @@
   .agenda-dot.purple { background: var(--purple); }
   .agenda-dot.yellow { background: var(--yellow); }
   .agenda-dot.green { background: #4CAF50; }
+  .agenda-dot.blue { background: #4A90D9; }
 
   .agenda-title { font-size: 17px; font-weight: 600; }
   .agenda-desc { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 2px; }
@@ -282,6 +283,7 @@
   .feature-item.purple { border-left-color: #A89FCC; }
   .feature-item.yellow { border-left-color: var(--yellow); }
   .feature-item.green { border-left-color: #4CAF50; }
+  .feature-item.blue { border-left-color: #4A90D9; }
 
   .feature-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
 
@@ -382,40 +384,40 @@
   .tag-yellow { background: rgba(233,196,106,0.2); color: var(--yellow); border: 1px solid rgba(233,196,106,0.4); }
 
   /* Summary */
-  .summary-points { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .summary-points { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 
   .summary-point {
     display: flex;
     align-items: center;
     gap: 14px;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 500;
   }
 
   .check-icon {
-    width: 30px; height: 30px;
+    width: 28px; height: 28px;
     background: var(--teal);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 13px;
     flex-shrink: 0;
   }
 
   .next-steps {
     background: rgba(255,255,255,0.05);
     border-radius: 16px;
-    padding: 22px 26px;
+    padding: 18px 24px;
     border: 1px solid rgba(255,255,255,0.1);
   }
 
-  .next-steps h3 { font-size: 16px; font-weight: 700; color: var(--orange-light); margin-bottom: 12px; }
+  .next-steps h3 { font-size: 16px; font-weight: 700; color: var(--orange-light); margin-bottom: 10px; }
 
-  .next-steps ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .next-steps ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
   .next-steps li::before { content: '→ '; color: var(--orange-light); }
-  .next-steps li { font-size: 14px; color: rgba(255,255,255,0.8); }
+  .next-steps li { font-size: 13px; color: rgba(255,255,255,0.8); }
 
   /* Demo */
   .demo-frame {
@@ -470,6 +472,60 @@
   .callout-icon { font-size: 18px; flex-shrink: 0; }
   .callout-body { color: rgba(255,255,255,0.82); }
   .callout-body strong { color: #fff; }
+
+  /* Command card for slash commands slide */
+  .cmd-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cmd-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    border-radius: 14px 14px 0 0;
+  }
+  .cmd-card.teal::before { background: var(--teal); }
+  .cmd-card.purple::before { background: var(--purple); }
+  .cmd-card.yellow::before { background: var(--yellow); }
+  .cmd-card.green::before { background: #4CAF50; }
+  .cmd-card.blue::before { background: #4A90D9; }
+  .cmd-name {
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--orange-light);
+    margin-bottom: 8px;
+  }
+  .cmd-card.teal .cmd-name { color: #4ECDC4; }
+  .cmd-card.purple .cmd-name { color: #A89FCC; }
+  .cmd-card.yellow .cmd-name { color: var(--yellow); }
+  .cmd-card.green .cmd-name { color: #66BB6A; }
+  .cmd-card.blue .cmd-name { color: #64B5F6; }
+  .cmd-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .cmd-desc { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+  /* Shortcut pill */
+  .shortcut-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .shortcut-item { display: flex; align-items: center; gap: 8px; }
+  .kbd {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .shortcut-label { font-size: 12px; color: rgba(255,255,255,0.65); }
 
   /* Navigation */
   .nav {
@@ -574,7 +630,7 @@
       <div class="agenda-item">
         <div class="agenda-dot teal"></div>
         <div>
-          <div class="agenda-title">STEP 1 ─ まず CLAUDE.md を書く</div>
+          <div class="agenda-title">STEP 1 ─ まず CLAUDE.md を書く（＆育てる）</div>
           <div class="agenda-desc">プロジェクトの「説明書」をAIに渡す</div>
         </div>
       </div>
@@ -588,15 +644,15 @@
       <div class="agenda-item">
         <div class="agenda-dot yellow"></div>
         <div>
-          <div class="agenda-title">STEP 3 ─ 実装フェーズ（効果的な指示の出し方）</div>
-          <div class="agenda-desc">精度を上げる指示のコツ</div>
+          <div class="agenda-title">STEP 3 ─ 実装（指示のコツ・プランモード・@参照）</div>
+          <div class="agenda-desc">精度を上げる指示と安全に進めるための機能</div>
         </div>
       </div>
       <div class="agenda-item">
         <div class="agenda-dot green"></div>
         <div>
-          <div class="agenda-title">STEP 4 ─ テスト・デバッグ ／ Tips ／ まとめ</div>
-          <div class="agenda-desc">よくある失敗パターンと回避策</div>
+          <div class="agenda-title">STEP 4 ─ テスト・デバッグ ／ コマンド参照 ／ Git連携 ／ まとめ</div>
+          <div class="agenda-desc">よくある失敗パターンと自動化の活用まで</div>
         </div>
       </div>
     </div>
@@ -904,7 +960,7 @@
             <div class="step-num yellow">4</div>
             <div class="step-body">
               <h3>コンテキスト管理</h3>
-              <p>長くなったら <code>/compact</code> で圧縮して作業継続。それでも混乱するなら <code>/clear</code> で全リセット</p>
+              <p>長くなったら <code>/compact</code> で圧縮して作業継続。混乱したら <code>/clear</code> で全リセット</p>
             </div>
           </div>
         </div>
@@ -912,8 +968,92 @@
     </div>
   </div>
 
-  <!-- Slide 8: STEP 4 - Test & Debug -->
+  <!-- Slide 8: NEW - Plan Mode & @ Reference -->
   <div class="slide slide-content" id="slide-8">
+    <div class="slide-header">
+      <p class="slide-label">STEP 3 補足</p>
+      <h2>プランモードと<span class="accent">@ファイル参照</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">@ ファイル参照で文脈を絞り込む</div>
+
+        <div class="prompt-example" style="margin-bottom:12px;">
+          <div class="prompt-label">使用例</div>
+          <span style="font-size:13px; line-height:1.9;">
+            @src/services/product.py と同じパターンで<br>
+            @src/services/cart.py に add_item() を追加して。<br>
+            @tests/services/test_product.py と同じ形式でテストも書いて
+          </span>
+        </div>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">📁</span>
+            <div>
+              <h4>ファイルパスを直接指定</h4>
+              <p>@path/to/file.py でファイルをコンテキストに追加。ディレクトリ単位での参照も可能</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">🎯</span>
+            <div>
+              <h4>「既存と同じスタイルで」が確実に通る</h4>
+              <p>参照先の命名・構造・パターンを正確に踏襲した出力になる。CLAUDE.md との組み合わせが強力</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">🔗</span>
+            <div>
+              <h4>複数ファイルの同時参照</h4>
+              <p>@model.py @schema.py @router.py と複数指定してまとめて文脈を渡せる</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">Shift+Tab でプランモードに切り替える</div>
+
+        <div class="callout info" style="margin-bottom:14px;">
+          <span class="callout-icon">⌨️</span>
+          <div class="callout-body">
+            入力前に <strong>Shift + Tab</strong> を押すとプランモードに切り替わる。<br>
+            指示を送ると、実行前に「何をするか」の計画リストを提示してくれる
+          </div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Shift+Tab → プランモード ON</h3>
+              <p>入力欄がプランモードに切り替わる。この状態で指示を送信する</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num teal">2</div>
+            <div class="step-body">
+              <h3>計画リストを確認する</h3>
+              <p>「① Xファイルを編集 ② Yを追加 ③ テストを更新」のような実行前計画が表示される</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num purple">3</div>
+            <div class="step-body">
+              <h3>合意してから実行</h3>
+              <p>方針が違えば計画段階でフィードバック。複数ファイルにまたがる大きな変更に特に有効</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: STEP 4 - Test & Debug (was slide 8) -->
+  <div class="slide slide-content" id="slide-9">
     <div class="slide-header">
       <p class="slide-label">STEP 4</p>
       <h2>テスト・<span class="accent">デバッグを効率化</span>する</h2>
@@ -983,8 +1123,76 @@
     </div>
   </div>
 
-  <!-- Slide 9: Tips & Common Mistakes -->
-  <div class="slide slide-content" id="slide-9">
+  <!-- Slide 10: NEW - Slash Commands Reference -->
+  <div class="slide slide-content" id="slide-10">
+    <div class="slide-header">
+      <p class="slide-label">Reference</p>
+      <h2>スラッシュコマンド<span class="accent">早見表</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="cards cards-3" style="margin-bottom:16px;">
+      <div class="cmd-card">
+        <div class="cmd-name">/init</div>
+        <div class="cmd-title">CLAUDE.md を自動生成</div>
+        <div class="cmd-desc">コードベースを読み込んで CLAUDE.md の雛形を作成。まず最初にこれを実行</div>
+      </div>
+      <div class="cmd-card teal">
+        <div class="cmd-name">/compact</div>
+        <div class="cmd-title">コンテキストを圧縮</div>
+        <div class="cmd-desc">長い会話を要約してトークンを節約。作業の途中で限界に近づいたら使う</div>
+      </div>
+      <div class="cmd-card purple">
+        <div class="cmd-name">/clear</div>
+        <div class="cmd-title">会話を完全リセット</div>
+        <div class="cmd-desc">新しいタスクへ切り替えるとき・会話が迷走したとき。CLAUDE.md は引き継がれる</div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">/model</div>
+        <div class="cmd-title">モデルを切り替える</div>
+        <div class="cmd-desc">速度優先なら Haiku、精度優先なら Opus へ切り替え。コスト最適化にも使える</div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">/cost</div>
+        <div class="cmd-title">使用コストを確認</div>
+        <div class="cmd-desc">このセッションで使ったトークン数・コストを表示。コスト感覚を身につけるために</div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">/help</div>
+        <div class="cmd-title">ヘルプを表示</div>
+        <div class="cmd-desc">コマンド一覧・使い方のリファレンスを表示。困ったらまずここ</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.05); border-radius:14px; padding:16px 22px; border:1px solid rgba(255,255,255,0.1);">
+      <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:12px;">キーボードショートカット</div>
+      <div class="shortcut-row">
+        <div class="shortcut-item">
+          <span class="kbd">Shift + Tab</span>
+          <span class="shortcut-label">プランモード切り替え</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="kbd">Escape</span>
+          <span class="shortcut-label">実行中の操作をキャンセル</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="kbd">↑ / ↓</span>
+          <span class="shortcut-label">入力履歴を遡る</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="kbd">Ctrl + C</span>
+          <span class="shortcut-label">実行を中断</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="kbd">Ctrl + L</span>
+          <span class="shortcut-label">画面をクリア</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Tips & Common Mistakes (was slide 9) -->
+  <div class="slide slide-content" id="slide-11">
     <div class="slide-header">
       <p class="slide-label">Tips</p>
       <h2>よくある<span class="accent">失敗パターン</span>と避け方</h2>
@@ -1029,8 +1237,80 @@
     </div>
   </div>
 
-  <!-- Slide 10: Demo -->
-  <div class="slide slide-content" id="slide-10" style="flex-direction:column;">
+  <!-- Slide 12: NEW - Git & CI/CD Integration -->
+  <div class="slide slide-content" id="slide-12">
+    <div class="slide-header">
+      <p class="slide-label">Advanced</p>
+      <h2>Git連携と<span class="accent">CI/CD活用</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">Claude Code × Git</div>
+
+        <div class="feature-list" style="margin-bottom:14px;">
+          <div class="feature-item">
+            <span class="feature-icon">📝</span>
+            <div>
+              <h4>コミットメッセージを生成させる</h4>
+              <p>「この変更内容でコミットメッセージを書いて」で conventional commits 形式のメッセージを自動生成</p>
+            </div>
+          </div>
+          <div class="feature-item teal">
+            <span class="feature-icon">🔀</span>
+            <div>
+              <h4>ブランチ操作も自然言語で</h4>
+              <p>「feature/cart-api ブランチを切って実装して」など、git 操作をそのまま指示できる</p>
+            </div>
+          </div>
+          <div class="feature-item purple">
+            <span class="feature-icon">🔍</span>
+            <div>
+              <h4>git diff・履歴の解析</h4>
+              <p>「直近の変更でバグが混入したか確認して」で diff を読み込んで問題を特定してくれる</p>
+            </div>
+          </div>
+          <div class="feature-item yellow">
+            <span class="feature-icon">📋</span>
+            <div>
+              <h4>PRの説明文を自動生成</h4>
+              <p>「このブランチの変更内容をもとにPR説明文を書いて」でレビュアーに伝わる説明が出来上がる</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div style="color:rgba(255,255,255,0.55); font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">ヘッドレスモードで自動化する</div>
+
+        <div class="code-block" style="font-size:12px; line-height:1.9; margin-bottom:14px;">
+          <span class="label">Terminal / GitHub Actions</span>
+          <span class="comment"># -p フラグで非対話（ヘッドレス）実行</span><br>
+          <span class="prompt">$</span> <span class="cmd">claude -p "テストを実行して失敗したら修正して"</span><br>
+          <br>
+          <span class="comment"># GitHub Actions での利用例</span><br>
+          <span class="key">- name:</span> <span class="str">AI Code Review</span><br>
+          <span class="key">  run:</span> <span class="val">|</span><br>
+          <span class="cmd">    claude -p "このPRの差分をコードレビューして \</span><br>
+          <span class="cmd">    問題点をコメントで出力して"</span>
+        </div>
+
+        <div class="callout tip">
+          <span class="callout-icon">🚀</span>
+          <div class="callout-body">
+            <strong>自動化ユースケース例：</strong><br>
+            • PR作成時に自動でコードレビューコメント<br>
+            • mainマージ前にAIによるセキュリティチェック<br>
+            • git log からリリースノートを自動生成
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 13: Demo (was slide 10) -->
+  <div class="slide slide-content" id="slide-13" style="flex-direction:column;">
     <div class="slide-header">
       <p class="slide-label">Demo</p>
       <h2>ライブ<span class="accent">デモ</span></h2>
@@ -1046,15 +1326,15 @@
       <div class="demo-tips">
         <span class="demo-tip">① CLAUDE.md を /init で自動生成</span>
         <span class="demo-tip">② 設計方針をAIと議論</span>
-        <span class="demo-tip">③ APIエンドポイントを実装</span>
+        <span class="demo-tip">③ @参照＋プランモードで実装</span>
         <span class="demo-tip">④ テストを自動生成・実行</span>
         <span class="demo-tip">⑤ バグをエラーログから修正</span>
       </div>
     </div>
   </div>
 
-  <!-- Slide 11: Summary -->
-  <div class="slide slide-summary" id="slide-11">
+  <!-- Slide 14: Summary (was slide 11) -->
+  <div class="slide slide-summary" id="slide-14">
     <div class="deco-circle deco-circle-1"></div>
     <div class="slide-header">
       <p class="slide-label">Summary</p>
@@ -1076,7 +1356,15 @@
       </div>
       <div class="summary-point">
         <div class="check-icon">✓</div>
-        <span>テスト生成・エラー解析・ドキュメント作成もClaude Codeに任せる</span>
+        <span><code>@ファイル参照</code> とプランモード（Shift+Tab）で大きな変更も安全に進められる</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>テスト生成・エラー解析・コミットメッセージ生成もClaude Codeに任せる</span>
+      </div>
+      <div class="summary-point">
+        <div class="check-icon">✓</div>
+        <span>ヘッドレスモードやCI/CDと組み合わせて自動化の幅を広げる</span>
       </div>
       <div class="summary-point">
         <div class="check-icon">✓</div>
@@ -1088,8 +1376,9 @@
       <ul>
         <li>担当プロジェクトで <code>/init</code> を実行して CLAUDE.md を生成してみる</li>
         <li>小さなバグ修正や関数追加を Claude Code に頼んでみる</li>
+        <li>複雑な機能実装でプランモード（Shift+Tab）を試してみる</li>
         <li>既存コードのテストを自動生成してカバレッジを上げる</li>
-        <li>うまくいった指示・失敗した指示を CLAUDE.md にメモして育てる</li>
+        <li>コミットメッセージの生成を Claude Code に任せてみる</li>
       </ul>
     </div>
   </div>
@@ -1097,18 +1386,18 @@
 </div>
 
 <!-- Slide Number -->
-<div class="slide-num" id="slide-num">1 / 11</div>
+<div class="slide-num" id="slide-num">1 / 14</div>
 
 <!-- Navigation -->
 <nav class="nav">
   <button class="nav-btn" onclick="changeSlide(-1)" aria-label="前のスライド">&#8592;</button>
   <div class="nav-dots" id="nav-dots"></div>
-  <span class="nav-counter" id="nav-counter">1 / 11</span>
+  <span class="nav-counter" id="nav-counter">1 / 14</span>
   <button class="nav-btn" onclick="changeSlide(1)" aria-label="次のスライド">&#8594;</button>
 </nav>
 
 <script>
-  const totalSlides = 11;
+  const totalSlides = 14;
   let current = 1;
 
   const dotsContainer = document.getElementById('nav-dots');
